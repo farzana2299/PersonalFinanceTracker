@@ -16,5 +16,5 @@ server.use(router)
 require('./database/connection')
 const port = 4000 || process.env.PORT
 server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`-----Server is running on port ${port}--------`);
 })
