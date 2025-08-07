@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { userLoginApi } from "../../service/allApi";
@@ -22,6 +22,19 @@ function Login() {
     password: /^[a-zA-Z0-9@#]+$/,
   };
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      if (parsedUser.email && parsedUser.password) {
+        setUser({
+          email: parsedUser.email,
+          password: parsedUser.password,
+        });
+      }
+    }
+  }, []);
+
   const setDatas = (e) => {
     const { name, value } = e.target;
     const isValid = validationRules[name]?.test(value) ?? true;
@@ -44,10 +57,11 @@ function Login() {
 
     try {
       const result = await userLoginApi({ email, password });
-console.log("result=",result);
 
       if (result.status >= 200 && result.status < 300) {
+
         localStorage.setItem("token", result.data.token);
+        localStorage.setItem("currentUserId", result.data._id);
         setUser({ email: "", password: "" });
         navigate(`/home/${result.data._id}`);
       } else {
