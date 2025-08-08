@@ -2,6 +2,7 @@ const { user, transaction } = require("../models/collection")
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
 const userRegistration = async (req, res) => {
     try {
@@ -21,7 +22,6 @@ const userRegistration = async (req, res) => {
         }
 
         const hashedPw = await bcrypt.hash(password, 10);
-
         const newUser = await user.create({
             username,
             email,
@@ -47,7 +47,6 @@ const userLogin = async (req, res, next) => {
     }
 
     const ur = await user.findOne({ email });
-
     if (ur) {
 
         const token = jwt.sign({ _id: ur._id }, "superkey123");
@@ -59,7 +58,6 @@ const userLogin = async (req, res, next) => {
             username: ur.username,
             token
         });
-
     }
     else {
         res.status(404).json({
@@ -68,7 +66,6 @@ const userLogin = async (req, res, next) => {
             statusCode: 404
         });
     }
-
 };
 
 // AddTransaction 
@@ -91,7 +88,6 @@ const addTransaction = async (req, res) => {
                 message: "Transaction not found"
             });
         }
-
         const transactionData = new transaction({
             amount,
             type,
@@ -103,17 +99,14 @@ const addTransaction = async (req, res) => {
         });
 
         const savedTransaction = await transactionData.save();
-
         if (!savedTransaction) {
             throw new Error("Failed to Create ransaction.");
         }
-
         return res.status(201).json({
             status: true,
             message: "Transaction created successfully",
             transaction: savedTransaction
         });
-
     } catch (error) {
         return res.status(500).json({
             status: false,
@@ -190,7 +183,6 @@ const editTransaction = async (req, res) => {
             res.status(400).json("Transaction not found")
         }
     }
-
     catch (err) {
         res.status(401).json("Transaction Edit is Not Working")
     }
@@ -226,7 +218,6 @@ const deleteTransaction = async (req, res) => {
         });
     }
 };
-
 
 const getTotalIncome = async (req, res) => {
     try {
@@ -343,14 +334,19 @@ const getAverageMonthlyIncome = async (req, res) => {
     const result = await transaction.aggregate([
       {
         $match: {
-          uid: uid,
+          uid: new ObjectId(uid),
           type: "Income",
         },
       },
       {
         $addFields: {
+          parsedDate: { $toDate: "$date" }
+        }
+      },
+      {
+        $addFields: {
           yearMonth: {
-            $dateToString: { format: "%Y-%m", date: "$date" }
+            $dateToString: { format: "%Y-%m", date: "$parsedDate" }
           }
         }
       },
@@ -376,11 +372,10 @@ const getAverageMonthlyIncome = async (req, res) => {
       message: avgIncome,
     });
   } catch (error) {
-    console.error("Error calculating average monthly income:", error);
     res.status(500).json({
       status: false,
-      message: "Server error while calculating average monthly income",
-      statusCode:500
+      message: "Server Error",
+      statusCode: 500
     });
   }
 };
@@ -388,18 +383,22 @@ const getAverageMonthlyIncome = async (req, res) => {
 const getAverageMonthlyExpense = async (req, res) => {
   try {
     const { uid } = req.params;
-
     const result = await transaction.aggregate([
       {
         $match: {
-          uid: uid,
+          uid: new ObjectId(uid),
           type: "Expense",
         },
       },
       {
         $addFields: {
+          parsedDate: { $toDate: "$date" }
+        }
+      },
+      {
+        $addFields: {
           yearMonth: {
-            $dateToString: { format: "%Y-%m", date: "$date" }
+            $dateToString: { format: "%Y-%m", date: "$parsedDate" }
           }
         }
       },
@@ -427,8 +426,8 @@ const getAverageMonthlyExpense = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       status: false,
-      message: "Something Went Wrong",
-      statusCode:500
+      message: "Server Error",
+      statusCode: 500
     });
   }
 };

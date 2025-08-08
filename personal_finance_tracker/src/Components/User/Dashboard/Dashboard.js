@@ -1,13 +1,14 @@
 import { Col, Row } from "react-bootstrap"
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentBalanceApi, getTotalExpressApi, getTotalIncomeApi } from "../../../service/allApi";
+import { getAverageExpenseApi, getAverageIncomeApi, getCurrentBalanceApi, getTotalExpenseApi, getTotalIncomeApi } from "../../../service/allApi";
 import { setAverageExpense, setAverageIncome, setCurrentBalance, setTotalExpense, setTotalIncome } from "./Dashboard.slice";
 import { useEffect } from "react";
+import BarGraph from "../BarGraph/BarGraph";
 
 function Dashboard({ uid }) {
   const dispatch = useDispatch();
 
-  const { income, expense, balance,averageincome,averageexpense } = useSelector((state) => state.dashboard);
+  const { income, expense, balance, averageincome, averageexpense } = useSelector((state) => state.dashboard);
 
   const getuserTransaction = async () => {
     try {
@@ -19,21 +20,17 @@ function Dashboard({ uid }) {
       const incomeresult = await getTotalIncomeApi(uid, reqHeader);
       dispatch(setTotalIncome(incomeresult.data.data));
 
-      const expenseresult = await getTotalExpressApi(uid, reqHeader);
+      const expenseresult = await getTotalExpenseApi(uid, reqHeader);
       dispatch(setTotalExpense(expenseresult.data.data));
 
       const balanceresult = await getCurrentBalanceApi(uid, reqHeader);
       dispatch(setCurrentBalance(balanceresult.data.message));
 
-       const avgincomeresult = await getCurrentBalanceApi(uid, reqHeader);
-       console.log("avgincomeresult",avgincomeresult);
-       
+      const avgincomeresult = await getAverageIncomeApi(uid, reqHeader);
       dispatch(setAverageIncome(avgincomeresult.data.message));
 
-       const avgexpenseresult = await getTotalExpressApi(uid, reqHeader);
-       console.log("avgexpenseresult",avgexpenseresult);
-       
-      dispatch(setAverageExpense(avgexpenseresult.data.data));
+      const avgexpenseresult = await getAverageExpenseApi(uid, reqHeader);
+      dispatch(setAverageExpense(avgexpenseresult.data.message));
 
     } catch (err) {
       console.error("Failed to fetch jobs.");
@@ -82,6 +79,9 @@ function Dashboard({ uid }) {
           </div>
         </Col>
       </Row>
+      <div>
+        <BarGraph uid={uid}></BarGraph>
+      </div>
     </div>
   )
 }

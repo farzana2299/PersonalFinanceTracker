@@ -76,7 +76,6 @@ function EditTransaction({ transaction, onClose }) {
 
     try {
       const result = await editTransactionApi(transactions._id, headers, transactions);
-      console.log("result=",result);
       
       if (result.status >= 200 && result.status < 300) {
         toast.success("Transaction Updated Successfully", {

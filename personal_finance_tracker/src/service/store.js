@@ -3,12 +3,14 @@ import addtransaction from '../Components/User/Transaction/AddTransaction/AddTra
 import transactionlist from '../Components/User/Transaction/TransactionList/TransactionList.slice';
 import editTransaction from '../Components/User/Transaction/EditTransaction/EditTransaction.slice';
 import dashboard from '../Components/User/Dashboard/Dashboard.slice';
+import bargraph from '../Components/User/BarGraph/BarGraph.slice';
 
 export const store = configureStore({
     reducer: {
         addtransaction,
         transactionlist,
         editTransaction,
-        dashboard
+        dashboard,
+        bargraph
     },
 });

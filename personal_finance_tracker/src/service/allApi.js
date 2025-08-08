@@ -30,7 +30,7 @@ export const getTotalIncomeApi = async (uid, header) => {
   return await commonApi('GET', `${BASE_URL}/user/totalincome/${uid}`, "", header)
 }
 
-export const getTotalExpressApi = async (uid, header) => {
+export const getTotalExpenseApi = async (uid, header) => {
   return await commonApi('GET', `${BASE_URL}/user/totalexpense/${uid}`, "", header)
 }
 
