@@ -3,16 +3,17 @@ import { Link, useParams } from 'react-router-dom';
 import Dashboard from './Dashboard/Dashboard';
 import TransactionList from './Transaction/TransactionList/TransactionList';
 import { useState } from 'react';
+import icon from './Images/Icon.png'
 
 function Home() {
 
-const { id } = useParams();
+  const { id } = useParams();
 
-    const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   const tabs = [
     { key: 'dashboard', label: 'Dashboard', component: <Dashboard uid={id} /> },
-    { key: 'transaction', label: 'Transaction', component: <TransactionList uid={id}/> },
+    { key: 'transaction', label: 'Transaction', component: <TransactionList uid={id} /> },
   ];
 
   const renderTabComponent = () => {
@@ -22,23 +23,23 @@ const { id } = useParams();
   return (
     <div>
       {/* Navbar */}
-      <Navbar bg="light" expand="lg">
+      <Navbar bg="dark" expand="lg">
         <Container>
           <Navbar.Brand href="#home" className="d-flex align-items-center">
             <img
               alt="Logo"
-              src="/img/logo.svg"
-              width="30"
-              height="30"
+              src={icon}
+              width="50"
+              height="50"
               className="d-inline-block align-top me-2"
             />
-            React Bootstrap
-          </Navbar.Brand>
+          <b className='text-warning'>BUDGET BOARD</b>          
+            </Navbar.Brand>
 
           <Nav className="ms-auto">
-              <Link to={'/'}>
-                  <Button onClick={()=>{localStorage.clear()}} className="btn" variant="outline-danger" type="submit">Logout</Button>
-                </Link>
+            <Link to={'/'}>
+              <Button onClick={() => { localStorage.clear() }} className="btn" variant="outline-danger" type="submit"><i class="fa-solid fa-power-off"></i>Logout</Button>
+            </Link>
           </Nav>
         </Container>
       </Navbar>
