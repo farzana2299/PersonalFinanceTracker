@@ -23,7 +23,7 @@ function Home() {
   return (
     <div>
       {/* Navbar */}
-      <Navbar bg="dark" expand="lg">
+      <Navbar bg="secondary" expand="lg">
         <Container>
           <Navbar.Brand href="#home" className="d-flex align-items-center">
             <img
@@ -52,7 +52,7 @@ function Home() {
             {tabs.map(tab => (
               <Button
                 key={tab.key}
-                variant={activeTab === tab.key ? 'success' : 'outline-success'}
+                variant={activeTab === tab.key ? 'secondary' : 'outline-secondary'}
                 onClick={() => setActiveTab(tab.key)}
               >
                 {tab.label}

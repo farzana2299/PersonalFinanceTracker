@@ -123,8 +123,8 @@ function AddTransaction({ uid }) {
 
   return (
     <div>
-      <div className="mt-5" style={{ position: "relative", left: "80%" }}>
-        <Button onClick={handleShow} size="lg" variant="success">
+      <div className="" style={{ position: "relative", left: "80%" }}>
+        <Button onClick={handleShow} variant="success">
           ADD
         </Button>
       </div>

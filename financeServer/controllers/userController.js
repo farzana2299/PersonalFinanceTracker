@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
+const { format } = require("date-fns");
 
 const userRegistration = async (req, res) => {
     try {
@@ -117,45 +118,49 @@ const addTransaction = async (req, res) => {
 };
 
 const allTransactionByUser = async (req, res) => {
-    try {
-        const { uid } = req.params;
+  try {
+    const { uid } = req.params;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+    const skip = (page - 1) * limit;
 
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const search = req.query.search || '';
-        const skip = (page - 1) * limit;
+    const { type, startDate, endDate } = req.query;
 
-        const userObjectId = new mongoose.Types.ObjectId(uid);
-
-        const query = {
-            uid: userObjectId,
-            $or: [
-                { income: { $regex: search, $options: "i" } },
-                { expense: { $regex: search, $options: "i" } },
-                { description: { $regex: search, $options: "i" } },
-                { type: { $regex: search, $options: "i" } }
-            ]
-        };
-
-        const [transactions, total] = await Promise.all([
-            transaction.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }),
-            transaction.countDocuments(query)
-        ]);
-
-        res.status(200).json({
-            message: transactions,
-            status: true,
-            statusCode: 200,
-            totalPages: Math.ceil(total / limit),
-            currentPage: page
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: "Server error while loading transactions",
-            status: false,
-            statusCode: 500
-        });
+    if (!mongoose.Types.ObjectId.isValid(uid)) {
+      return res.status(400).json({ message: "Invalid user id", status: false, statusCode: 400 });
     }
+    const userObjectId = new mongoose.Types.ObjectId(uid);
+    const query = { uid: userObjectId };
+
+    if (type && (type === "Income" || type === "Expense")) {
+      query.type = type;
+    }
+
+    if (startDate && endDate) {
+      const startOnly = String(startDate).split("T")[0];
+      const endOnly = String(endDate).split("T")[0];
+      query.date = { $gte: startOnly, $lte: endOnly };
+    }
+    const [transactions, total] = await Promise.all([
+      transaction.find(query).skip(skip).limit(limit).sort({ date: -1 }), 
+      transaction.countDocuments(query)
+    ]);
+
+    return res.status(200).json({
+      message: transactions,
+      status: true,
+      statusCode: 200,
+      totalPages: Math.ceil(total / limit) || 1,
+      currentPage: page
+    });
+  } catch (error) {
+    console.error("Error fetching transactions:", error);
+    return res.status(500).json({
+      message: "Server Error",
+      status: false,
+      statusCode: 500
+    });
+  }
 };
 
 const editTransaction = async (req, res) => {
