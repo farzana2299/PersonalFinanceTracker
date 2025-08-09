@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
-const { format } = require("date-fns");
 
 const userRegistration = async (req, res) => {
     try {
@@ -124,25 +123,28 @@ const allTransactionByUser = async (req, res) => {
     const limit = Math.max(parseInt(req.query.limit) || 10, 1);
     const skip = (page - 1) * limit;
 
-    const { type, startDate, endDate } = req.query;
+    const { type, startDate, endDate, sortBy } = req.query;
 
     if (!mongoose.Types.ObjectId.isValid(uid)) {
       return res.status(400).json({ message: "Invalid user id", status: false, statusCode: 400 });
     }
-    const userObjectId = new mongoose.Types.ObjectId(uid);
-    const query = { uid: userObjectId };
+
+    const query = { uid: new mongoose.Types.ObjectId(uid) };
 
     if (type && (type === "Income" || type === "Expense")) {
       query.type = type;
     }
 
     if (startDate && endDate) {
-      const startOnly = String(startDate).split("T")[0];
-      const endOnly = String(endDate).split("T")[0];
-      query.date = { $gte: startOnly, $lte: endOnly };
+      query.date = { $gte: startDate, $lte: endDate };
     }
+
+    let sort = {};
+    if (sortBy === "amount") sort.amount = -1;
+    else sort.date = -1;
+
     const [transactions, total] = await Promise.all([
-      transaction.find(query).skip(skip).limit(limit).sort({ date: -1 }), 
+      transaction.find(query).skip(skip).limit(limit).sort(sort),
       transaction.countDocuments(query)
     ]);
 
@@ -155,11 +157,7 @@ const allTransactionByUser = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching transactions:", error);
-    return res.status(500).json({
-      message: "Server Error",
-      status: false,
-      statusCode: 500
-    });
+    return res.status(500).json({ message: "Server Error", status: false, statusCode: 500 });
   }
 };
 

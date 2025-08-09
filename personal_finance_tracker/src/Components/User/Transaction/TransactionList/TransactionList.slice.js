@@ -10,7 +10,8 @@ const TransactionListSlice = createSlice({
     filterType: "",
     typeValue: "",
     startDate: "",
-    endDate: ""
+    endDate: "",
+      sortBy: "" 
   },
   reducers: {
     setTransaction: (state, action) => {
@@ -51,9 +52,13 @@ const TransactionListSlice = createSlice({
       state.typeValue = "";
       state.startDate = "";
       state.endDate = "";
-    }
+    },
+    setSortBy: (state, action) => {
+    state.sortBy = action.payload;
+  }
   },
 });
 
-export const { setTransaction, setLoading, deleteTransactionById, setPage, setTotalPages, resetFilters, setEndDate,setFilterType,setStartDate,setTypeValue} = TransactionListSlice.actions;
+export const { setTransaction, setLoading, deleteTransactionById, setPage, setTotalPages, resetFilters, 
+  setEndDate,setFilterType,setStartDate,setTypeValue,setSortBy} = TransactionListSlice.actions;
 export default TransactionListSlice.reducer;
